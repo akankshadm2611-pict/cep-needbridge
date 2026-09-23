@@ -1,0 +1,6 @@
+{
+  "name": "NeedBridge",
+  "description": "A community connection platform bridging the gap between local volunteers, NGOs, and community service opportunities with dedicated interactive role-based dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
