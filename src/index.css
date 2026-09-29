@@ -1,0 +1,319 @@
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource/outfit";
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    background-color: #f8fafc;
+    color: #0f172a;
+    /* Prevent horizontal overflow on mobile */
+    overflow-x: hidden;
+  }
+
+  .dark body, body.dark {
+    background-color: #030712;
+    color: #f8fafc;
+  }
+  
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  /* Better touch targets on mobile */
+  button, a {
+    touch-action: manipulation;
+  }
+
+  /* Prevent iOS input zoom */
+  input, textarea, select {
+    font-size: 16px;
+  }
+
+  /* Smooth font rendering */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom Glassmorphism effects */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.08);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark .glass-card-hover:hover {
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.5);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* Subtle background grid & glowing mesh */
+.bg-helping-hands {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
+    radial-gradient(at 85% 20%, rgba(249, 115, 22, 0.07) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
+}
+
+.dark .bg-helping-hands {
+  background-color: #090d16;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(14, 165, 233, 0.12) 0px, transparent 50%),
+    radial-gradient(at 85% 20%, rgba(249, 115, 22, 0.09) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* ─── MOBILE RESPONSIVE UTILITIES ─────────────────────────────────────── */
+
+/* Safe area support for notched phones */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Mobile-first card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Truncate long text on small screens */
+.line-clamp-mobile {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .line-clamp-mobile {
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* Stack flex items on mobile */
+.flex-mobile-col {
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .flex-mobile-col {
+    flex-direction: row;
+  }
+}
+
+/* Better tap targets for mobile nav */
+.mobile-nav-item {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* Dashboard sidebar on mobile */
+.dashboard-sidebar-mobile {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.dashboard-sidebar-mobile.open {
+  transform: translateX(0);
+}
+
+/* Responsive tables */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Form inputs on mobile */
+.form-input-mobile {
+  width: 100%;
+  min-height: 44px;
+  font-size: 16px; /* Prevents iOS zoom */
+  padding: 0.625rem 0.875rem;
+}
+
+/* Floating action button for mobile */
+.fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 40;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* Modal on mobile */
+@media (max-width: 640px) {
+  .modal-mobile {
+    position: fixed;
+    inset: 0;
+    border-radius: 0;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+}
+
+/* Horizontal scroll for filter pills on mobile */
+.filter-pills {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 4px;
+}
+
+.filter-pills::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animate entrance on mobile too */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.4s ease both;
+}
+
+/* Stats grid: 2 cols on mobile, more on desktop */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Hero responsive font sizes */
+.hero-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+}
