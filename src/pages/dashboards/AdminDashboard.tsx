@@ -13,12 +13,12 @@ import {
   CheckCircle2,
   XCircle,
   FileText,
-  ExternalLink,
+  X,
   Globe2,
   BarChart3,
   Flame,
 } from 'lucide-react';
-import type { NgoProfile, Requirement, User } from '../../../shared/types';
+import type { NgoProfile, Requirement, User, VerificationDocument } from '../../../shared/types';
 import { SDG_LABELS } from '../../../shared/types';
 
 export function AdminDashboard() {
@@ -31,6 +31,7 @@ export function AdminDashboard() {
 
   const [reviewNote, setReviewNote] = useState('');
   const [selectedNgo, setSelectedNgo] = useState<NgoProfile | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<VerificationDocument | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -55,6 +56,17 @@ export function AdminDashboard() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!selectedDocument) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedDocument(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedDocument]);
 
   const handleVerifyNgo = async (ngoId: string, status: 'verified' | 'rejected') => {
     try {
@@ -169,9 +181,20 @@ export function AdminDashboard() {
                     {ngo.verificationDocuments?.map((doc) => (
                       <div key={doc.id} className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 pl-5">
                         <span>{doc.originalName || doc.filename}</span>
-                        <span className="text-[10px] text-slate-400">
-                          {new Date(doc.uploadedAt).toLocaleDateString()}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] text-slate-400">
+                            {new Date(doc.uploadedAt).toLocaleDateString()}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDocument(doc)}
+                            aria-label={`View ${doc.originalName || doc.filename}`}
+                            className="inline-flex items-center gap-1 font-semibold text-teal-700 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            View
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -296,6 +319,54 @@ export function AdminDashboard() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {selectedDocument && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3 sm:p-6"
+          onClick={() => setSelectedDocument(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Document preview: ${selectedDocument.originalName || selectedDocument.filename}`}
+            className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-slate-900"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+              <div className="flex min-w-0 items-center gap-2">
+                <FileText className="h-4 w-4 shrink-0 text-teal-600" />
+                <h2 className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                  {selectedDocument.originalName || selectedDocument.filename}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedDocument(null)}
+                aria-label="Close document preview and return to verification queue"
+                className="inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                <X className="h-4 w-4" />
+                Close
+              </button>
+            </header>
+            <div className="min-h-0 flex-1 bg-slate-100 dark:bg-slate-950">
+              {selectedDocument.mimeType.startsWith('image/') ? (
+                <img
+                  src={`/api/uploads/${encodeURIComponent(selectedDocument.filename)}`}
+                  alt={selectedDocument.originalName || 'NGO verification document'}
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <iframe
+                  src={`/api/uploads/${encodeURIComponent(selectedDocument.filename)}`}
+                  title={selectedDocument.originalName || 'NGO verification document'}
+                  className="h-full w-full border-0 bg-white"
+                />
+              )}
+            </div>
+          </section>
         </div>
       )}
     </div>

@@ -23,7 +23,7 @@ router.get('/:filename', requireAuth, (req: AuthRequest, res, next) => {
       return;
     }
 
-    // Check ownership: admin can see all; NGO can only see their own docs
+    // Admins can review all documents; NGOs can only access their own.
     if (req.userRole === 'ngo') {
       const profile = NgoProfilesRepo.findByUserId(req.userId!);
       const owns = profile?.verificationDocuments.some(d => d.filename === safe);
@@ -31,6 +31,9 @@ router.get('/:filename', requireAuth, (req: AuthRequest, res, next) => {
         res.status(403).json({ ok: false, error: 'Access denied.' });
         return;
       }
+    } else if (req.userRole !== 'admin') {
+      res.status(403).json({ ok: false, error: 'Access denied.' });
+      return;
     }
 
     res.sendFile(filePath);
