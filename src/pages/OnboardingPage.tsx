@@ -94,11 +94,12 @@ export function OnboardingPage() {
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setError(null);
     try {
       await api.ngos.uploadDocument(file);
       setUploadedDocName(file.name);
-    } catch {
-      setError('Failed to upload document. Please upload a valid PDF or image file.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload document. Please upload a valid PDF or image file (max 10MB).');
     }
   };
 

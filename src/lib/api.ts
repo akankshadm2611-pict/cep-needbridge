@@ -74,13 +74,18 @@ export const api = {
 
   // ─── Auth ───────────────────────────────────────────────────────────────
   auth: {
-    register: (data: { email: string; password: string; role: 'volunteer' | 'ngo' | 'admin'; name?: string }) =>
+    register: (data: { email: string; password: string; role: 'volunteer' | 'ngo'; name?: string }) =>
       request<{ user: User; profile: NgoProfile | VolunteerProfile | null }>('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
     login: (data: { email: string; password: string }) =>
       request<{ user: User; profile: NgoProfile | VolunteerProfile | null }>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    adminLogin: (data: { email: string; password: string }) =>
+      request<{ user: User; profile: null }>('/api/auth/admin-login', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
@@ -125,8 +130,8 @@ export const api = {
       }),
     uploadDocument: (file: File) => {
       const fd = new FormData();
-      fd.append('document', file);
-      return request<NgoProfile>('/api/ngos/me/documents', {
+      fd.append('documents', file); // must match server multer field name
+      return request<{ documents: any[]; profile: NgoProfile }>('/api/ngos/me/documents', {
         method: 'POST',
         body: fd,
       });

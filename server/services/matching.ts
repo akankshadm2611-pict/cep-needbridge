@@ -1,12 +1,4 @@
-/**
- * server/services/matching.ts
- *
- * Multi-Factor Compatibility Scoring + Bounded Quantity Allocation Engine.
- *
- * Phase 1: Hard filtering (geofence, status)
- * Phase 2: Multi-factor scoring (location, skills, urgency, reliability)
- * Phase 3: Bounded allocation = min(donor_qty, remaining_qty)
- */
+
 
 import { Requirement, VolunteerProfile, MatchScore } from '../../shared/types.js';
 import { RequirementsRepo } from '../db/repositories/index.js';
@@ -67,14 +59,10 @@ function passesHardFilter(req: Requirement, profile: VolunteerProfile): boolean 
   return true;
 }
 
-// ---------------------------------------------------------------------------
-// Phase 2: Multi-factor scoring (0–100)
-// ---------------------------------------------------------------------------
 
-/**
- * Location Proximity Score (0–40)
- * Full 40 pts at 0km, linear decay to 0 at MAX_RADIUS_KM.
- */
+// Phase 2: Multi-factor scoring (0–100)
+
+
 function locationScore(req: Requirement, profile: VolunteerProfile): { score: number; distanceKm?: number } {
   if (req.isRemote || profile.remoteOk) return { score: 40 };
   if (!req.location.latitude || !profile.location?.latitude) return { score: 20 }; // city-level estimate
@@ -125,20 +113,15 @@ function reliabilityScore(profile: VolunteerProfile): number {
   return Math.round((profile.reliabilityScore / 100) * 10);
 }
 
-// ---------------------------------------------------------------------------
-/**
- * Pure helper for zero-wastage allocation:
- * allocated = min(offered, max(0, needed - pledged))
- */
+
+//  * allocated = min(offered, max(0, needed - pledged))
+//  */
 export function calculateBoundedQuantity(offeredQty: number, quantityNeeded: number, quantityPledged = 0): number {
   const remaining = Math.max(0, quantityNeeded - quantityPledged);
   return Math.max(0, Math.min(offeredQty, remaining));
 }
 
-/**
- * Guarantee zero surplus wastage:
- * allocated = min(donor_offered_qty, need_remaining_qty)
- */
+
 export function boundedAllocate(offeredQty: number, requirementId: string): number {
   const req = RequirementsRepo.findById(requirementId);
   if (!req || !req.resourceNeeded) return 0;
@@ -146,9 +129,7 @@ export function boundedAllocate(offeredQty: number, requirementId: string): numb
   return calculateBoundedQuantity(offeredQty, req.resourceNeeded.quantityNeeded, req.resourceNeeded.quantityPledged);
 }
 
-// ---------------------------------------------------------------------------
-// Main: Score a volunteer against a single requirement
-// ---------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 
 export function scoreRequirementForVolunteer(
   req: Requirement,

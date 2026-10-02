@@ -12,7 +12,8 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (credentials: { email: string; password: string }) => Promise<void>;
-  register: (data: { email: string; password: string; role: 'volunteer' | 'ngo' | 'admin'; name?: string }) => Promise<void>;
+  adminLogin: (credentials: { email: string; password: string }) => Promise<void>;
+  register: (data: { email: string; password: string; role: 'volunteer' | 'ngo'; name?: string }) => Promise<void>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   setOnboardingDone: () => void;
@@ -64,12 +65,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (data: { email: string; password: string; role: 'volunteer' | 'ngo' | 'admin'; name?: string }) => {
+  const register = async (data: { email: string; password: string; role: 'volunteer' | 'ngo'; name?: string }) => {
     setIsLoading(true);
     try {
       const res = await api.auth.register(data);
       setUser(res.user);
       setProfile(res.profile);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const adminLogin = async (credentials: { email: string; password: string }) => {
+    setIsLoading(true);
+    try {
+      const data = await api.auth.adminLogin(credentials);
+      setUser(data.user);
+      setProfile(null);
     } finally {
       setIsLoading(false);
     }
@@ -100,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         isAuthenticated: !!user,
         login,
+        adminLogin,
         register,
         logout,
         refreshProfile,

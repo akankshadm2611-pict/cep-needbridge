@@ -10,3 +10,5 @@ data/
 Thumbs.db
 *.tsbuildinfo
 data/uploads/
+# Admin whitelist — keep this PRIVATE, never commit to public repos
+admin-credentials.json
