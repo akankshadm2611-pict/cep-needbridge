@@ -25,7 +25,7 @@ import notificationsRouter from './routes/notifications.js';
 import adminRouter from './routes/admin.js';
 import publicRouter from './routes/public.js';
 import uploadsRouter from './routes/uploads.js';
-import { isCollectionEmpty } from './db/fileStore.js';
+import { isCollectionEmpty, initCollectionFromMongo } from './db/fileStore.js';
 import { seedDatabase } from './db/seed.js';
 import { startDeadlineJob } from './jobs/deadlines.js';
 import { connectMongo } from './db/mongo.js';
@@ -135,8 +135,12 @@ async function attachFrontend(): Promise<void> {
 }
 
 async function start(): Promise<void> {
-  // Attempt to connect to MongoDB Atlas if MONGODB_URI is provided
+  // Connect to MongoDB Atlas if MONGODB_URI is provided
   await connectMongo();
+
+  // Load all collections from MongoDB Atlas into memory (or seed Mongo from local JSON)
+  const COLLECTIONS = ['users', 'ngo_profiles', 'volunteer_profiles', 'requirements', 'applications', 'notifications', 'categories'];
+  await Promise.all(COLLECTIONS.map(c => initCollectionFromMongo(c)));
 
   if (isCollectionEmpty('users')) {
     console.log('🌱 Empty data store — seeding demo accounts and requirements...');
