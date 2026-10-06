@@ -92,3 +92,19 @@ export async function notifyDeadlineApproaching(
     link: `/requirements/${requirementId}`,
   });
 }
+
+export async function notifyPledgeFulfilled(
+  volunteerUserId: string,
+  requirementTitle: string,
+  requirementId: string,
+  ngoName: string,
+  hasProofImage: boolean
+): Promise<void> {
+  await createNotification({
+    userId: volunteerUserId,
+    type: 'pledge_fulfilled',
+    title: `Donation Verified & Utilized! 🌟`,
+    body: `${ngoName} has confirmed delivery and verified utilization for "${requirementTitle}". ${hasProofImage ? 'Photo proof of impact is now available in your dashboard!' : ''}`,
+    link: `/dashboard`,
+  });
+}

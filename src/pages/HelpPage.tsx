@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { HelpCircle, Sparkles, ShieldCheck, Heart, Building2, Package, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { PLATFORM_COPY } from '../lib/copy';
+import { QuickStartGuide } from '../components/QuickStartGuide';
 
 export function HelpPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -26,14 +27,10 @@ export function HelpPage() {
       q: 'How are UN Sustainable Development Goals (SDGs) tracked?',
       a: 'Every requirement posted by an NGO is tagged with relevant SDGs (1–17). When an application or pledge is fulfilled and verified, the impact metrics automatically increment the beneficiary and fulfillment counters for those specific global goals.',
     },
-    {
-      q: 'Is NeedBridge completely offline-capable?',
-      a: 'Yes. NeedBridge runs 100% locally with zero external API keys or cloud dependencies. All matching algorithms, text suggestion analyzers, and database repository layers operate entirely in-house.',
-    },
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
       {/* Header */}
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/80 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
@@ -41,12 +38,15 @@ export function HelpPage() {
           <span>Knowledge Base & Guidance</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold font-display text-slate-900 dark:text-white">
-          Help Center & FAQs
+          Help Center & Getting Started Guide
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
-          Learn how NeedBridge ensures verified community collaboration and zero-wastage donation matching.
+          Everything you need to know about volunteering, pledging resources, and publishing verified NGO drives.
         </p>
       </div>
+
+      {/* Interactive Getting Started Guide */}
+      <QuickStartGuide />
 
       {/* Zero Wastage USP Explainer Card */}
       <div className="p-8 rounded-3xl bg-gradient-to-br from-teal-900 to-slate-900 text-white shadow-xl space-y-4">

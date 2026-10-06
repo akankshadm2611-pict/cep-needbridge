@@ -102,7 +102,7 @@ const ResourceSpecSchema = z.object({
 
 const CreateRequirementSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(150),
-  description: z.string().min(20, 'Description must be at least 20 characters').max(2000),
+  description: z.string().min(1, 'Description is required').max(2000),
   category: z.string().min(1),
   type: z.enum(['time', 'goods', 'both']),
   skillsRequired: z.array(z.string()).default([]),

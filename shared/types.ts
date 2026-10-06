@@ -164,6 +164,8 @@ export interface Application {
   decidedAt?: string;
   hoursLogged?: number;
   fulfilled: boolean;
+  proofImageUrl?: string; // photo proof uploaded by NGO showing items utilized
+  proofNote?: string;
   matchScore?: number; // 0-100 from matching engine
 }
 

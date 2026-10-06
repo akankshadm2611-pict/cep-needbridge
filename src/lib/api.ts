@@ -199,17 +199,19 @@ export const api = {
       }),
     getById: (id: string) => request<Application>(`/api/applications/${id}`),
     decide: (id: string, status: 'accepted' | 'rejected') =>
-      request<Application>(`/api/applications/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
+      request<Application>(`/api/applications/${id}/${status === 'accepted' ? 'accept' : 'reject'}`, {
+        method: 'PUT',
       }),
     withdraw: (id: string) =>
       request<Application>(`/api/applications/${id}/withdraw`, {
-        method: 'POST',
+        method: 'PUT',
       }),
-    markFulfilled: (id: string, data?: { hoursLogged?: number }) =>
+    markFulfilled: (
+      id: string,
+      data?: { hoursLogged?: number; proofImageUrl?: string; proofNote?: string }
+    ) =>
       request<Application>(`/api/applications/${id}/fulfill`, {
-        method: 'PATCH',
+        method: 'PUT',
         body: JSON.stringify(data || {}),
       }),
   },

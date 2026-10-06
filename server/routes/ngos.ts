@@ -9,6 +9,7 @@ import {
   UsersRepo,
   RequirementsRepo,
   ApplicationsRepo,
+  VolunteerProfilesRepo,
 } from '../db/repositories/index.js';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -61,7 +62,25 @@ router.get('/me/applications', requireAuth, requireRole('ngo'), async (req: Auth
       .sort((a, b) => b.appliedAt.localeCompare(a.appliedAt))
       .map((app) => {
         const requirement = RequirementsRepo.findById(app.requirementId);
-        return { ...app, _requirement: requirement ?? null };
+        const volProfile = VolunteerProfilesRepo.findById(app.volunteerId);
+        const volUser = volProfile ? UsersRepo.findById(volProfile.userId) : null;
+        return {
+          ...app,
+          _requirement: requirement ?? null,
+          _volunteerProfile: volProfile ? {
+            name: volProfile.name,
+            phone: volProfile.phone,
+            email: volUser?.email,
+            location: volProfile.location,
+            skills: volProfile.skills,
+            contributionType: volProfile.contributionType,
+            availability: volProfile.availability,
+            bio: volProfile.bio,
+            reliabilityScore: volProfile.reliabilityScore,
+            interests: volProfile.interests,
+            resourceCategories: volProfile.resourceCategories,
+          } : null,
+        };
       });
     res.json({ ok: true, data: apps });
   } catch (err) {

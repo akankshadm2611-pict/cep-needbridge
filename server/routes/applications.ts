@@ -17,6 +17,7 @@ import {
   notifyApplicationDecision,
   notifyPledgeAccepted,
   notifyNewApplication,
+  notifyPledgeFulfilled,
 } from '../services/notify.js';
 
 const router = Router();
@@ -328,10 +329,19 @@ router.put('/:id/withdraw', requireAuth, requireRole('volunteer'), async (req: A
   }
 });
 
-// ─── Mark fulfilled (NGO confirms delivery) ───────────────────────────────────
+// ─── Mark fulfilled (NGO confirms delivery & uploads proof photo) ────────────
+
+const FulfillSchema = z.object({
+  hoursLogged: z.number().nonnegative().optional(),
+  proofImageUrl: z.string().url().or(z.string().startsWith('data:image/')).optional(),
+  proofNote: z.string().max(1000).optional(),
+});
 
 router.put('/:id/fulfill', requireAuth, requireRole('ngo'), async (req: AuthRequest, res, next) => {
   try {
+    const parsed = FulfillSchema.safeParse(req.body);
+    const { hoursLogged, proofImageUrl, proofNote } = parsed.success ? parsed.data : req.body || {};
+
     const application = ApplicationsRepo.findById(req.params.id);
     if (!application) {
       res.status(404).json({ ok: false, error: 'Application not found.' });
@@ -350,14 +360,79 @@ router.put('/:id/fulfill', requireAuth, requireRole('ngo'), async (req: AuthRequ
       return;
     }
 
-    const updated = await ApplicationsRepo.update(req.params.id, { fulfilled: true });
+    // If already fulfilled, only allow updating the proof image/note (not re-running completion logic)
+    if (application.fulfilled) {
+      if (!proofImageUrl) {
+        res.status(400).json({ ok: false, error: 'Please upload a proof photo to update.' });
+        return;
+      }
+      const updated = await ApplicationsRepo.update(req.params.id, {
+        proofImageUrl,
+        proofNote: proofNote || application.proofNote,
+      });
+      // Always update requirement's imageUrl so donors can see it
+      if (requirement) {
+        await RequirementsRepo.update(requirement.id, { imageUrl: proofImageUrl });
+      }
+      res.json({ ok: true, data: updated });
+      return;
+    }
 
-    // Check if all applications fulfilled → mark requirement complete
+    const updated = await ApplicationsRepo.update(req.params.id, {
+      fulfilled: true,
+      hoursLogged: hoursLogged ?? application.hoursLogged,
+      proofImageUrl: proofImageUrl || application.proofImageUrl,
+      proofNote: proofNote || application.proofNote,
+    });
+
+    // If photo proof is provided, always update the requirement's imageUrl so donors can see it
+    if (proofImageUrl && requirement) {
+      await RequirementsRepo.update(requirement.id, {
+        imageUrl: proofImageUrl,
+      });
+    }
+
+    // Check if target capacity is fully met AND all accepted applications are fulfilled
     const allApps = ApplicationsRepo.findByRequirementId(application.requirementId);
-    const allAccepted = allApps.filter(a => a.status === 'accepted');
-    const allFulfilled = allAccepted.every(a => a.fulfilled || a.id === req.params.id);
-    if (allFulfilled && allAccepted.length > 0) {
-      await RequirementsRepo.update(application.requirementId, { status: 'completed' });
+    const allAccepted = allApps.filter((a) => a.status === 'accepted');
+    const allFulfilled = allAccepted.every((a) => a.fulfilled || a.id === req.params.id);
+
+    if (requirement) {
+      let isGoalFullyMet = true;
+      if (requirement.type !== 'time' && requirement.resourceNeeded) {
+        if (requirement.resourceNeeded.quantityPledged < requirement.resourceNeeded.quantityNeeded) {
+          isGoalFullyMet = false;
+        }
+      }
+      if (requirement.type !== 'goods' && requirement.volunteersNeeded > 0) {
+        if (requirement.volunteersAccepted < requirement.volunteersNeeded) {
+          isGoalFullyMet = false;
+        }
+      }
+
+      // Only transition to 'completed' if the target need is completely reached AND all accepted pledges are fulfilled
+      if (isGoalFullyMet && allFulfilled && allAccepted.length > 0) {
+        await RequirementsRepo.update(application.requirementId, { status: 'completed' });
+      } else {
+        // Keep requirement open so remaining needs can be fulfilled by other donors
+        await RequirementsRepo.update(application.requirementId, { status: 'open' });
+      }
+    }
+
+    // Notify donor/volunteer with confirmation & proof
+    const volProfile = VolunteerProfilesRepo.findById(application.volunteerId);
+    if (volProfile && requirement) {
+      const { UsersRepo } = await import('../db/repositories/index.js');
+      const volUser = UsersRepo.findById(volProfile.userId);
+      if (volUser) {
+        await notifyPledgeFulfilled(
+          volUser.id,
+          requirement.title,
+          requirement.id,
+          ngoProfile.name,
+          !!proofImageUrl
+        );
+      }
     }
 
     res.json({ ok: true, data: updated });

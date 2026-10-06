@@ -45,15 +45,19 @@ app.use(
   })
 );
 
-app.use(
-  rateLimit({
-    windowMs: env.RATE_LIMIT_WINDOW_MS,
-    max: env.RATE_LIMIT_MAX,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { ok: false, error: 'Too many requests. Please slow down.' },
-  })
-);
+// Apply rate limiting to API requests (production only)
+if (env.NODE_ENV === 'production') {
+  app.use(
+    '/api',
+    rateLimit({
+      windowMs: env.RATE_LIMIT_WINDOW_MS,
+      max: env.RATE_LIMIT_MAX,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { ok: false, error: 'Too many requests. Please slow down.' },
+    })
+  );
+}
 
 if (env.NODE_ENV !== 'test') {
   app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));

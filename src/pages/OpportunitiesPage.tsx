@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import {
   Compass,
@@ -18,10 +19,14 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { PledgeModal } from '../components/PledgeModal';
-import type { Requirement, ContributionType, UrgencyLevel, SDGNumber } from '../../shared/types';
+import type { Requirement, ContributionType, UrgencyLevel, SDGNumber, VolunteerProfile } from '../../shared/types';
 import { SDG_LABELS } from '../../shared/types';
 
 export function OpportunitiesPage() {
+  const { user, profile } = useAuth();
+  const volProfile = user?.role === 'volunteer' ? (profile as VolunteerProfile | null) : null;
+  const isGoodsOnlyDonor = volProfile?.contributionType === 'goods';
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +48,7 @@ export function OpportunitiesPage() {
   const fetchRequirements = async () => {
     setLoading(true);
     try {
-      const items = await api.requirements.list({
+      let items = await api.requirements.list({
         search: search || undefined,
         category: category || undefined,
         type: (type as ContributionType) || undefined,
@@ -51,6 +56,12 @@ export function OpportunitiesPage() {
         sdgTag: sdgTag ? Number(sdgTag) : undefined,
         status: 'open',
       });
+
+      // If user opted strictly for goods donation, only show donating ('goods') and both ('both') opportunities
+      if (isGoodsOnlyDonor) {
+        items = items.filter((r) => r.type === 'goods' || r.type === 'both');
+      }
+
       setRequirements(items);
     } catch {
       setRequirements([]);
@@ -61,7 +72,7 @@ export function OpportunitiesPage() {
 
   useEffect(() => {
     fetchRequirements();
-  }, [category, type, urgency, sdgTag]);
+  }, [category, type, urgency, sdgTag, isGoodsOnlyDonor]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,10 +148,20 @@ export function OpportunitiesPage() {
             onChange={(e) => setType(e.target.value as ContributionType | '')}
             className="px-3 py-2 text-xs font-medium bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 focus:outline-none"
           >
-            <option value="">All Types (Time & Goods)</option>
-            <option value="time">Volunteer Time Only</option>
-            <option value="goods">Donation Goods Only</option>
-            <option value="both">Both Time & Goods</option>
+            {isGoodsOnlyDonor ? (
+              <>
+                <option value="">All Donation Drives (Goods &amp; Combined)</option>
+                <option value="goods">Donation Goods Only</option>
+                <option value="both">Both Time &amp; Goods</option>
+              </>
+            ) : (
+              <>
+                <option value="">All Types (Time &amp; Goods)</option>
+                <option value="time">Volunteer Time Only</option>
+                <option value="goods">Donation Goods Only</option>
+                <option value="both">Both Time &amp; Goods</option>
+              </>
+            )}
           </select>
 
           {/* Urgency */}

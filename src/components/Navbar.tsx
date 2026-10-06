@@ -19,6 +19,7 @@ import {
   Compass,
   Building2,
   HelpCircle,
+  Sparkles,
   User as UserIcon,
 } from 'lucide-react';
 import type { Notification } from '../../shared/types';
@@ -67,7 +68,7 @@ export function Navbar() {
   const navLinks = [
     { name: 'Opportunities', path: '/opportunities', icon: Compass },
     { name: 'NGOs', path: '/ngos', icon: Building2 },
-    { name: 'How It Works', path: '/#how-it-works', icon: HeartHandshake },
+    { name: 'Getting Started', path: '/#guide', icon: Sparkles },
     { name: 'Help & FAQ', path: '/help', icon: HelpCircle },
   ];
 
