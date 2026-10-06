@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Education",
+    "slug": "education",
+    "active": true,
+    "id": "T3flzZL8DwSKt4vhxikTp"
+  },
+  {
+    "name": "Food Support",
+    "slug": "food-support",
+    "active": true,
+    "id": "l6DMvF8igAQtcfZZHmkGN"
+  },
+  {
+    "name": "Healthcare",
+    "slug": "healthcare",
+    "active": true,
+    "id": "prdUczuorNJFIEu81zSR8"
+  },
+  {
+    "name": "Environment",
+    "slug": "environment",
+    "active": true,
+    "id": "jiHKcYGNoTLprdQ9Wy5rR"
+  },
+  {
+    "name": "Disaster Relief",
+    "slug": "disaster-relief",
+    "active": true,
+    "id": "hqTs4GqPtwrb56WTHwCNm"
+  }
+]

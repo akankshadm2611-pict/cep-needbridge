@@ -1,0 +1,232 @@
+[
+  {
+    "userId": "qG21-1u7Y4dlf1yicwWuW",
+    "name": "Aarohi Sharma",
+    "phone": "+91 99200 11223",
+    "bio": "Volunteer educator passionate about community teaching and food drives.",
+    "contributionType": "both",
+    "skills": [
+      "Teaching",
+      "English",
+      "Food Packaging"
+    ],
+    "resourceCategories": [
+      "Books",
+      "Rations & Dry Food"
+    ],
+    "interests": [
+      "Education",
+      "Food Support"
+    ],
+    "preferredCategories": [
+      "Education",
+      "Food Support"
+    ],
+    "sdgInterests": [
+      2,
+      4
+    ],
+    "location": {
+      "city": "Pune",
+      "state": "Maharashtra",
+      "latitude": 18.5204,
+      "longitude": 73.8567
+    },
+    "remoteOk": true,
+    "availability": {
+      "days": [
+        "Saturday",
+        "Sunday"
+      ],
+      "hoursPerWeek": 8,
+      "timePreference": "afternoon"
+    },
+    "reliabilityScore": 92,
+    "id": "KPVjl7DN5kghcaruTnHQT",
+    "createdAt": "2026-09-29T18:31:43.998Z",
+    "updatedAt": "2026-09-29T18:31:43.998Z"
+  },
+  {
+    "userId": "MpnmlmD6UMr1S5A7tS11r",
+    "name": "Priya Deshmukh",
+    "contributionType": "both",
+    "skills": [
+      "Teaching",
+      "Communication"
+    ],
+    "resourceCategories": [
+      "Books",
+      "Stationery"
+    ],
+    "interests": [
+      "Education",
+      "Food Support"
+    ],
+    "preferredCategories": [],
+    "sdgInterests": [
+      2,
+      4
+    ],
+    "remoteOk": true,
+    "availability": {
+      "days": [
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "reliabilityScore": 50,
+    "id": "4uT9-cUq_FkvzRixcvVlL",
+    "createdAt": "2026-09-30T05:23:55.168Z",
+    "updatedAt": "2026-09-30T05:24:10.827Z",
+    "location": {
+      "city": "Pune"
+    }
+  },
+  {
+    "userId": "nJveiX2yDZErHFGJ0UXWB",
+    "name": "Priya",
+    "contributionType": "both",
+    "skills": [
+      "Teaching",
+      "Communication",
+      "Counseling"
+    ],
+    "resourceCategories": [
+      "Books",
+      "Stationery"
+    ],
+    "interests": [
+      "Education",
+      "Food Support"
+    ],
+    "preferredCategories": [],
+    "sdgInterests": [
+      2,
+      4
+    ],
+    "remoteOk": true,
+    "availability": {
+      "days": [
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "reliabilityScore": 50,
+    "id": "qCvi5kUyxlsowYlKR3nkD",
+    "createdAt": "2026-09-30T05:55:38.553Z",
+    "updatedAt": "2026-09-30T05:56:51.295Z",
+    "location": {
+      "city": "Pune"
+    }
+  },
+  {
+    "userId": "Fy8d8HLKgyJD-28bqZcru",
+    "name": "ga",
+    "contributionType": "both",
+    "skills": [
+      "Teaching",
+      "Communication"
+    ],
+    "resourceCategories": [
+      "Books",
+      "Stationery"
+    ],
+    "interests": [
+      "Education",
+      "Food Support"
+    ],
+    "preferredCategories": [],
+    "sdgInterests": [
+      2,
+      4
+    ],
+    "remoteOk": true,
+    "availability": {
+      "days": [
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "reliabilityScore": 50,
+    "id": "jJ9vJwiWhWYodl2Hcllj7",
+    "createdAt": "2026-10-02T18:25:31.072Z",
+    "updatedAt": "2026-10-02T18:25:58.761Z",
+    "location": {
+      "city": "Pune"
+    }
+  },
+  {
+    "userId": "aTCKn8LrA71tdJihxOKMa",
+    "name": "priyanka",
+    "contributionType": "both",
+    "skills": [
+      "Teaching",
+      "Communication"
+    ],
+    "resourceCategories": [
+      "Books",
+      "Stationery"
+    ],
+    "interests": [
+      "Education",
+      "Food Support"
+    ],
+    "preferredCategories": [],
+    "sdgInterests": [
+      2,
+      4,
+      5,
+      3
+    ],
+    "remoteOk": true,
+    "availability": {
+      "days": [
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "reliabilityScore": 50,
+    "id": "uC8GbZcaCKumR8SFYJWTU",
+    "createdAt": "2026-10-06T16:29:10.531Z",
+    "updatedAt": "2026-10-06T16:29:38.432Z",
+    "location": {
+      "city": "Pune"
+    }
+  },
+  {
+    "userId": "3TuKC6Vwg2ewXTOBvuASk",
+    "name": "Rani",
+    "contributionType": "both",
+    "skills": [
+      "Teaching",
+      "Communication"
+    ],
+    "resourceCategories": [
+      "Books",
+      "Stationery"
+    ],
+    "interests": [
+      "Education",
+      "Food Support"
+    ],
+    "preferredCategories": [],
+    "sdgInterests": [
+      2,
+      4
+    ],
+    "remoteOk": true,
+    "availability": {
+      "days": [
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "reliabilityScore": 50,
+    "id": "_BpUo-6K8tCIu5joFT0y5",
+    "createdAt": "2026-10-06T17:34:58.372Z",
+    "updatedAt": "2026-10-06T17:35:35.722Z",
+    "location": {
+      "city": "Chandrapur"
+    }
+  }
+]

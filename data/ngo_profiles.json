@@ -1,0 +1,368 @@
+[
+  {
+    "userId": "u45tyvrO7ojRaiEGmKTW3",
+    "name": "Helping Hands Foundation",
+    "description": "Providing meal rations and emergency medical supplies across Pune urban slums and shelter homes.",
+    "organizationType": "Charitable Trust",
+    "registrationNumber": "MAH/2018/0048291",
+    "causeAreas": [
+      "Food Support",
+      "Healthcare"
+    ],
+    "sdgTags": [
+      2,
+      3
+    ],
+    "location": {
+      "city": "Pune",
+      "state": "Maharashtra",
+      "address": "Shivajinagar Relief Hub, Pune 411005",
+      "latitude": 18.5314,
+      "longitude": 73.8446
+    },
+    "contact": {
+      "email": "drives@helpinghandsngo.org",
+      "phone": "+91 98220 12345",
+      "name": "Dr. Suresh Kadam"
+    },
+    "website": "https://helpinghandsngo.org",
+    "verificationStatus": "verified",
+    "verificationNote": "All 80G and Trust certificates verified.",
+    "verificationDocuments": [],
+    "id": "VfeB1smLF1qh8S6gvW6o4",
+    "createdAt": "2026-09-29T18:31:43.993Z",
+    "updatedAt": "2026-09-29T18:31:43.993Z"
+  },
+  {
+    "userId": "FgP9HPOXUWihg4HLrWTPB",
+    "name": "Pune Funding",
+    "causeAreas": [
+      "Healthcare",
+      "Food Support",
+      "Animal Welfare",
+      "Community Development"
+    ],
+    "sdgTags": [],
+    "location": {
+      "city": "Pune"
+    },
+    "contact": {
+      "email": "punefunding@gmail.com",
+      "phone": "1234567891"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "YRk0nAjEpphYy0VID3utg-1790744589813",
+        "filename": "YRk0nAjEpphYy0VID3utg-1790744589813.png",
+        "originalName": "Cep Workflow.png",
+        "uploadedAt": "2026-09-30T05:03:09.937Z",
+        "mimeType": "image/png"
+      }
+    ],
+    "id": "-u9kEZd2NByhzk4Vu59gw",
+    "createdAt": "2026-09-30T05:02:40.708Z",
+    "updatedAt": "2026-09-30T05:04:19.874Z",
+    "description": "",
+    "registrationNumber": "REG- MH2091",
+    "website": ""
+  },
+  {
+    "userId": "IeHo0CZCZ0Ox7svXVkIvJ",
+    "name": "Pune high tech",
+    "causeAreas": [],
+    "sdgTags": [],
+    "location": {
+      "city": "Pune"
+    },
+    "contact": {
+      "email": "pune@gmail.com",
+      "phone": "12345678910"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "HJa1zP7ANvNHFyVsGzI2S-1790747922675",
+        "filename": "HJa1zP7ANvNHFyVsGzI2S-1790747922675.png",
+        "originalName": "Cep Workflow.png",
+        "uploadedAt": "2026-09-30T05:58:42.797Z",
+        "mimeType": "image/png"
+      }
+    ],
+    "id": "rtLxRvPgrZrHJ1nx5F4R9",
+    "createdAt": "2026-09-30T05:57:52.278Z",
+    "updatedAt": "2026-09-30T06:01:38.023Z",
+    "description": "Pune Pune Pune Pune Pune Pune Pune Pune Pune Pune Pune Pune Pune Pune ",
+    "registrationNumber": "REG - MH 0890",
+    "website": ""
+  },
+  {
+    "userId": "4kooY_p2RsfmULDTjqJt4",
+    "name": "Funding System",
+    "causeAreas": [
+      "Food Support",
+      "Education",
+      "Elderly Care"
+    ],
+    "sdgTags": [],
+    "location": {
+      "city": "mahada"
+    },
+    "contact": {
+      "email": "funding@gmail.com",
+      "phone": "12345678910"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "aiOYI4wAezDoF-6QCVtps-1790919606711",
+        "filename": "aiOYI4wAezDoF-6QCVtps-1790919606711.png",
+        "originalName": "Cep Workflow.png",
+        "uploadedAt": "2026-10-02T05:40:06.834Z",
+        "mimeType": "image/png"
+      }
+    ],
+    "id": "LxXlM7zUiOUB_uPQJAlji",
+    "createdAt": "2026-10-02T05:39:31.715Z",
+    "updatedAt": "2026-10-02T05:51:11.330Z",
+    "description": "Funding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding SystemFunding System",
+    "registrationNumber": "reg -mh 50986",
+    "website": ""
+  },
+  {
+    "userId": "w_TpqQ5y1mBOEDxPmlTej",
+    "name": "Unverified Foundation",
+    "causeAreas": [
+      "Education"
+    ],
+    "sdgTags": [
+      4
+    ],
+    "location": {
+      "city": "Pune"
+    },
+    "contact": {
+      "email": "unverified_ngo_1790920051340@example.org"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "doc_1790920051347",
+        "filename": "ngo_registration_cert.pdf",
+        "originalName": "NGO_Reg_2026.pdf",
+        "uploadedAt": "2026-10-02T05:47:31.347Z",
+        "mimeType": "application/pdf"
+      }
+    ],
+    "id": "0KjhVSm9x6f9AB4UZ-Q2L",
+    "createdAt": "2026-10-02T05:47:31.343Z",
+    "updatedAt": "2026-10-02T05:47:31.349Z",
+    "registrationNumber": "REG-MH-2026-999",
+    "verificationNote": "All registration documents verified successfully by Admin on 2026-09-29."
+  },
+  {
+    "userId": "EZtomPTWJUZ78FwekuwUM",
+    "name": "mexico",
+    "causeAreas": [],
+    "sdgTags": [],
+    "location": {
+      "city": "cres"
+    },
+    "contact": {
+      "email": "mexico@gmail.com",
+      "phone": "245678910000"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "9v56r8p3u_NoGgKDEKhI--1790965646930",
+        "filename": "9v56r8p3u_NoGgKDEKhI--1790965646930.png",
+        "originalName": "Cep Workflow.png",
+        "uploadedAt": "2026-10-02T18:27:27.067Z",
+        "mimeType": "image/png"
+      }
+    ],
+    "id": "mWJIqlWnRxJ5AoYV6E7cU",
+    "createdAt": "2026-10-02T18:27:07.866Z",
+    "updatedAt": "2026-10-02T18:29:05.265Z",
+    "description": "gdc",
+    "registrationNumber": "jdehxve",
+    "website": ""
+  },
+  {
+    "userId": "V60myTBfQeKOIataQCxnK",
+    "name": "pune fintech",
+    "causeAreas": [],
+    "sdgTags": [],
+    "location": {
+      "city": ""
+    },
+    "contact": {},
+    "verificationStatus": "rejected",
+    "verificationDocuments": [],
+    "id": "920R6XOoIOrHFwV_qsxxr",
+    "createdAt": "2026-10-06T16:18:27.566Z",
+    "updatedAt": "2026-10-06T16:25:41.838Z"
+  },
+  {
+    "userId": "phG0MFKRg-38_Hr_I4p3x",
+    "name": "pune fintech",
+    "causeAreas": [
+      "Healthcare",
+      "Disaster Relief",
+      "Animal Welfare",
+      "Food Support",
+      "Community Development",
+      "Environment"
+    ],
+    "sdgTags": [],
+    "location": {
+      "city": "Chandrapur"
+    },
+    "contact": {
+      "email": "ftech@gmail.com",
+      "phone": "12345678910"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "3yzs42dHuTydTBXFDm03a-1791303860990",
+        "filename": "3yzs42dHuTydTBXFDm03a-1791303860990.png",
+        "originalName": "Cep Workflow.png",
+        "uploadedAt": "2026-10-06T16:24:21.064Z",
+        "mimeType": "image/png"
+      }
+    ],
+    "id": "pZuVGFm-2mzJpMpILg1n-",
+    "createdAt": "2026-10-06T16:23:56.652Z",
+    "updatedAt": "2026-10-06T16:25:59.731Z",
+    "description": "hello",
+    "registrationNumber": "REG- 45633900",
+    "website": ""
+  },
+  {
+    "userId": "F2Dt0dYp60qM1CmnRSYnP",
+    "name": "vidya vihar",
+    "causeAreas": [
+      "Education",
+      "Women Empowerment"
+    ],
+    "sdgTags": [],
+    "location": {
+      "city": "Chandrapur"
+    },
+    "contact": {
+      "email": "vihar@gmail.com",
+      "phone": "1234567890"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "hpP41nR3uLF48Ae6uT3qy-1791307666922",
+        "filename": "hpP41nR3uLF48Ae6uT3qy-1791307666922.png",
+        "originalName": "Cep Workflow.png",
+        "uploadedAt": "2026-10-06T17:27:46.989Z",
+        "mimeType": "image/png"
+      }
+    ],
+    "id": "_RCupLUfJSQY6ij13hZY_",
+    "createdAt": "2026-10-06T17:27:24.975Z",
+    "updatedAt": "2026-10-06T17:28:36.700Z",
+    "description": "education",
+    "registrationNumber": "REG- 123456",
+    "website": ""
+  },
+  {
+    "userId": "iQjrPcImmLMRpszKm7WgT",
+    "name": "Unverified Foundation",
+    "causeAreas": [
+      "Education"
+    ],
+    "sdgTags": [
+      4
+    ],
+    "location": {
+      "city": "Pune"
+    },
+    "contact": {
+      "email": "unverified_ngo_1791308408462@example.org"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "doc_1791308408466",
+        "filename": "ngo_registration_cert.pdf",
+        "originalName": "NGO_Reg_2026.pdf",
+        "uploadedAt": "2026-10-06T17:40:08.466Z",
+        "mimeType": "application/pdf"
+      }
+    ],
+    "id": "HleiGS4zkn1zM912w3ugE",
+    "createdAt": "2026-10-06T17:40:08.465Z",
+    "updatedAt": "2026-10-06T17:40:08.467Z",
+    "registrationNumber": "REG-MH-2026-999",
+    "verificationNote": "All registration documents verified successfully by Admin on 2026-09-29."
+  },
+  {
+    "userId": "Tr-8J1w-7OKaAoSjt9c8S",
+    "name": "Unverified Foundation",
+    "causeAreas": [
+      "Education"
+    ],
+    "sdgTags": [
+      4
+    ],
+    "location": {
+      "city": "Pune"
+    },
+    "contact": {
+      "email": "unverified_ngo_1791309248490@example.org"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "doc_1791309248494",
+        "filename": "ngo_registration_cert.pdf",
+        "originalName": "NGO_Reg_2026.pdf",
+        "uploadedAt": "2026-10-06T17:54:08.494Z",
+        "mimeType": "application/pdf"
+      }
+    ],
+    "id": "eVgDKjwG5lR7r02zeYsBg",
+    "createdAt": "2026-10-06T17:54:08.493Z",
+    "updatedAt": "2026-10-06T17:54:08.496Z",
+    "registrationNumber": "REG-MH-2026-999",
+    "verificationNote": "All registration documents verified successfully by Admin on 2026-09-29."
+  },
+  {
+    "userId": "-lleYZ31DV2mnHuQByQqW",
+    "name": "Unverified Foundation",
+    "causeAreas": [
+      "Education"
+    ],
+    "sdgTags": [
+      4
+    ],
+    "location": {
+      "city": "Pune"
+    },
+    "contact": {
+      "email": "unverified_ngo_1791310063433@example.org"
+    },
+    "verificationStatus": "verified",
+    "verificationDocuments": [
+      {
+        "id": "doc_1791310063437",
+        "filename": "ngo_registration_cert.pdf",
+        "originalName": "NGO_Reg_2026.pdf",
+        "uploadedAt": "2026-10-06T18:07:43.437Z",
+        "mimeType": "application/pdf"
+      }
+    ],
+    "id": "sIkYU1PiTGyMv413A6lqg",
+    "createdAt": "2026-10-06T18:07:43.436Z",
+    "updatedAt": "2026-10-06T18:07:43.439Z",
+    "registrationNumber": "REG-MH-2026-999",
+    "verificationNote": "All registration documents verified successfully by Admin on 2026-09-29."
+  }
+]
