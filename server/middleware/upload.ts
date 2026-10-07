@@ -8,7 +8,11 @@ import { env } from '../config/env.js';
 import { nanoid } from 'nanoid';
 
 // Ensure upload dir exists
-fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
+try {
+  fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
+} catch {
+  // Read-only filesystem in serverless
+}
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {

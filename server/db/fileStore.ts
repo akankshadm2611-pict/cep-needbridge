@@ -30,17 +30,20 @@ function collectionFile(name: string): string {
 
 /** Load from disk (JSON fallback) */
 function loadFromDisk<T>(name: string): T[] {
-  const file = collectionFile(name);
-  if (!fs.existsSync(file)) {
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, '[]', 'utf-8');
-    return [];
-  }
   try {
+    const file = collectionFile(name);
+    if (!fs.existsSync(file)) {
+      try {
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, '[]', 'utf-8');
+      } catch {
+        // Read-only filesystem in serverless
+      }
+      return [];
+    }
     const raw = fs.readFileSync(file, 'utf-8');
     return JSON.parse(raw) as T[];
   } catch {
-    console.warn(`⚠️  Could not parse ${file} — resetting to empty array`);
     return [];
   }
 }
@@ -60,13 +63,17 @@ async function persistToDisk(name: string): Promise<void> {
   try {
     const file = collectionFile(name);
     const tmp = file + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify(col.data, null, 2), 'utf-8');
     try {
-      fs.renameSync(tmp, file);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(tmp, JSON.stringify(col.data, null, 2), 'utf-8');
+      try {
+        fs.renameSync(tmp, file);
+      } catch {
+        try { fs.unlinkSync(tmp); } catch { /* ignore */ }
+      }
     } catch {
-      // OneDrive or antivirus may briefly lock the file on Windows — non-critical
-      // since MongoDB Atlas is the primary store
-      try { fs.unlinkSync(tmp); } catch { /* ignore */ }
+      // In read-only serverless environment (e.g. Vercel), local disk writes are ignored
+      // because MongoDB Atlas is the primary database.
     }
     col.dirty = false;
   } finally {

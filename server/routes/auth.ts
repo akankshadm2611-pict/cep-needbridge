@@ -38,10 +38,19 @@ interface AdminCredential {
 
 function loadAdminCredentials(): AdminCredential[] {
   try {
-    const raw = fs.readFileSync(ADMIN_CREDS_PATH, 'utf-8');
-    return JSON.parse(raw) as AdminCredential[];
+    const candidates = [
+      path.resolve(process.cwd(), 'admin-credentials.json'),
+      path.resolve(__dirname, '../../admin-credentials.json'),
+      path.resolve(__dirname, '../admin-credentials.json')
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, 'utf-8');
+        return JSON.parse(raw) as AdminCredential[];
+      }
+    }
+    return [];
   } catch {
-    console.warn('⚠️  admin-credentials.json not found or invalid. No admin logins will work.');
     return [];
   }
 }
