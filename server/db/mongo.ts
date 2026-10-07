@@ -3,8 +3,16 @@
  * Provides native Mongoose models for all collections.
  */
 
+import dns from 'node:dns';
 import mongoose, { Schema, Model } from 'mongoose';
 import { env } from '../config/env.js';
+
+// Resolve SRV records via public DNS if local/ISP DNS fails to resolve _mongodb._tcp
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch {
+  // Ignore
+}
 
 let isMongoConnected = false;
 
@@ -17,7 +25,7 @@ export async function connectMongo(): Promise<boolean> {
 
   try {
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 8000,
     });
     isMongoConnected = true;
     console.log('🍃 MongoDB Atlas: Connected successfully to database!');

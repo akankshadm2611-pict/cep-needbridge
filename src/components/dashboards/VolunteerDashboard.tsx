@@ -10,7 +10,6 @@ import {
   User, 
   Settings, 
   LogOut, 
-  Bell, 
   ChevronDown, 
   MapPin, 
   GraduationCap, 
@@ -87,7 +86,6 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'campaigns' | 'opportunities' | 'applications' | 'impact' | 'favorites' | 'messages' | 'profile' | 'settings'>('dashboard');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [appliedList, setAppliedList] = useState<string[]>(['opp-1']);
   const [favoriteList, setFavoriteList] = useState<string[]>(['camp-1', 'opp-2']);
   
@@ -339,34 +337,6 @@ export const VolunteerDashboard: React.FC<VolunteerDashboardProps> = ({
               {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
             </span>
           </button>
-
-          {/* Notification bell */}
-          <div className="relative">
-            <button 
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative cursor-pointer"
-              title="View notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
-            </button>
-
-            {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-3 z-50 animate-in fade-in">
-                <p className="text-xs font-bold text-slate-900 dark:text-white mb-2">Notifications</p>
-                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                  <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/50 text-blue-900 dark:text-blue-200">
-                    <p className="font-semibold">Application Accepted! 🎉</p>
-                    <p className="text-[11px] text-blue-700 dark:text-blue-400">Helping Hands accepted your application for Weekend Food Drive.</p>
-                  </div>
-                  <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200">
-                    <p className="font-semibold">New Drive in {userLocation.city}</p>
-                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400">Tree plantation drive added within your active radius.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* User profile capsule */}
           <button 

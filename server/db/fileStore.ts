@@ -61,7 +61,13 @@ async function persistToDisk(name: string): Promise<void> {
     const file = collectionFile(name);
     const tmp = file + '.tmp';
     fs.writeFileSync(tmp, JSON.stringify(col.data, null, 2), 'utf-8');
-    fs.renameSync(tmp, file);
+    try {
+      fs.renameSync(tmp, file);
+    } catch {
+      // OneDrive or antivirus may briefly lock the file on Windows — non-critical
+      // since MongoDB Atlas is the primary store
+      try { fs.unlinkSync(tmp); } catch { /* ignore */ }
+    }
     col.dirty = false;
   } finally {
     col.writeLock = false;

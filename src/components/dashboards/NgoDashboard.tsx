@@ -11,7 +11,6 @@ import {
   User, 
   Settings, 
   LogOut, 
-  Bell, 
   ChevronDown, 
   PlusCircle, 
   Download, 
@@ -76,7 +75,6 @@ export const NgoDashboard: React.FC<NgoDashboardProps> = ({
   onDeleteAccount,
 }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'campaigns' | 'volunteers' | 'donors' | 'beneficiaries' | 'requests' | 'reports' | 'messages' | 'profile' | 'settings'>('dashboard');
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -279,36 +277,6 @@ export const NgoDashboard: React.FC<NgoDashboardProps> = ({
             <PlusCircle className="w-3.5 h-3.5" />
             <span>New Campaign</span>
           </button>
-
-          {/* Notification bell */}
-          <div className="relative">
-            <button 
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative cursor-pointer"
-              title="View notifications"
-            >
-              <Bell className="w-4 h-4" />
-              {pendingRequestsCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
-              )}
-            </button>
-
-            {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-3 z-50 animate-in fade-in">
-                <p className="text-xs font-bold text-slate-900 dark:text-white mb-2">NGO Alerts</p>
-                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                  <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200">
-                    <p className="font-semibold">{pendingRequestsCount} Volunteer Applications</p>
-                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400">Review pending volunteer applications for your drives.</p>
-                  </div>
-                  <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/50 text-blue-900 dark:text-blue-200">
-                    <p className="font-semibold">₹{totalDonationSum.toLocaleString()} Funds Received</p>
-                    <p className="text-[11px] text-blue-700 dark:text-blue-400">Total verified direct donations processed.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* User profile capsule */}
           <button 

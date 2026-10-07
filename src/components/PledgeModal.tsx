@@ -21,7 +21,7 @@ export function PledgeModal({ requirement, onClose, onSuccess }: PledgeModalProp
   const [kind, setKind] = useState<'time' | 'goods'>(
     requirement?.type === 'goods' ? 'goods' : 'time'
   );
-  const [offeredQty, setOfferedQty] = useState<number>(10);
+  const [offeredQty, setOfferedQty] = useState<number>(0);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +42,11 @@ export function PledgeModal({ requirement, onClose, onSuccess }: PledgeModalProp
     e.preventDefault();
     if (!isAuthenticated) {
       setError('Please sign in or register to submit an application or pledge.');
+      return;
+    }
+
+    if (kind === 'goods' && (!offeredQty || offeredQty <= 0)) {
+      setError('Please enter a valid quantity of goods greater than 0.');
       return;
     }
 
@@ -168,9 +173,18 @@ export function PledgeModal({ requirement, onClose, onSuccess }: PledgeModalProp
                   </label>
                   <input
                     type="number"
-                    min="1"
-                    value={offeredQty}
-                    onChange={(e) => setOfferedQty(Math.max(1, parseInt(e.target.value) || 0))}
+                    min="0"
+                    placeholder="0"
+                    value={offeredQty === 0 ? '' : offeredQty}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') {
+                        setOfferedQty(0);
+                      } else {
+                        const parsed = parseInt(val, 10);
+                        setOfferedQty(isNaN(parsed) ? 0 : Math.max(0, parsed));
+                      }
+                    }}
                     className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none dark:text-white"
                   />
                 </div>
@@ -247,7 +261,7 @@ export function PledgeModal({ requirement, onClose, onSuccess }: PledgeModalProp
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || (kind === 'goods' && remainingNeeded <= 0)}
+                disabled={isSubmitting || (kind === 'goods' && (remainingNeeded <= 0 || offeredQty <= 0))}
                 className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-sm transition-all"
               >
                 {isSubmitting ? (

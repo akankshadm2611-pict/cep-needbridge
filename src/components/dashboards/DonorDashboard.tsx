@@ -10,7 +10,6 @@ import {
   User, 
   Settings, 
   LogOut, 
-  Bell, 
   ChevronDown, 
   MapPin, 
   Sparkles,
@@ -62,7 +61,6 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
   onDeleteAccount,
 }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'campaigns' | 'donations' | 'impact' | 'favorites' | 'request_aid' | 'messages' | 'profile' | 'settings'>('dashboard');
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [favoriteList, setFavoriteList] = useState<string[]>(['camp-1']);
   
   // Sidebar State
@@ -264,30 +262,6 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
           </button>
-
-          {/* Notification bell */}
-          <div className="relative">
-            <button 
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative cursor-pointer"
-              title="View notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-purple-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
-            </button>
-
-            {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-3 z-50 animate-in fade-in">
-                <p className="text-xs font-bold text-slate-900 dark:text-white mb-2">Notifications</p>
-                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                  <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-900/50 text-purple-900 dark:text-purple-200">
-                    <p className="font-semibold">80G Tax Receipt Ready</p>
-                    <p className="text-[11px] text-purple-700 dark:text-purple-400">Download your tax deduction receipt under My Donations.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* User profile capsule */}
           <button 

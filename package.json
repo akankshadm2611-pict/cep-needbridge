@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server/index.ts",
+    "kill-port": "powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Write-Host 'Port 3000 cleared'\"",
+    "dev": "npm run kill-port && tsx server/index.ts",
     "build": "vite build",
     "preview": "node dist-server/index.js",
     "seed": "tsx server/db/seed.ts",
