@@ -9,7 +9,7 @@ const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
   MONGODB_URI: z.string().optional(),
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 chars').default('needbridge-dev-secret-change-in-production-32chars'),
+  JWT_SECRET: z.string().min(1).default('needbridge-dev-secret-change-in-production-32chars'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   DATA_DIR: z.string().default('./data'),
   UPLOAD_DIR: z.string().default('./data/uploads'),

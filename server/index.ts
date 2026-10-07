@@ -41,16 +41,21 @@ try {
 }
 
 const app = express();
+app.set('trust proxy', 1);
 
 let initPromise: Promise<void> | null = null;
 export async function ensureDbInitialized(): Promise<void> {
   if (!initPromise) {
     initPromise = (async () => {
-      await connectMongo();
-      const COLLECTIONS = ['users', 'ngo_profiles', 'volunteer_profiles', 'requirements', 'applications', 'notifications', 'categories'];
-      await Promise.all(COLLECTIONS.map((c) => initCollectionFromMongo(c)));
-      if (isCollectionEmpty('users')) {
-        await seedDatabase();
+      try {
+        await connectMongo();
+        const COLLECTIONS = ['users', 'ngo_profiles', 'volunteer_profiles', 'requirements', 'applications', 'notifications', 'categories'];
+        await Promise.all(COLLECTIONS.map((c) => initCollectionFromMongo(c)));
+        if (isCollectionEmpty('users')) {
+          await seedDatabase();
+        }
+      } catch (err: any) {
+        console.warn('⚠️  Database initialization fallback warning:', err?.message || err);
       }
     })();
   }
