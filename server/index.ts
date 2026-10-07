@@ -96,15 +96,19 @@ app.use(async (_req, _res, next) => {
   }
 });
 
-app.use('/api', publicRouter);
-app.use('/api/auth', authRouter);
-app.use('/api/volunteers', volunteersRouter);
-app.use('/api/ngos', ngosRouter);
-app.use('/api/requirements', requirementsRouter);
-app.use('/api/applications', applicationsRouter);
-app.use('/api/notifications', notificationsRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/uploads', uploadsRouter);
+const apiRouter = express.Router();
+apiRouter.use('/', publicRouter);
+apiRouter.use('/auth', authRouter);
+apiRouter.use('/volunteers', volunteersRouter);
+apiRouter.use('/ngos', ngosRouter);
+apiRouter.use('/requirements', requirementsRouter);
+apiRouter.use('/applications', applicationsRouter);
+apiRouter.use('/notifications', notificationsRouter);
+apiRouter.use('/admin', adminRouter);
+apiRouter.use('/uploads', uploadsRouter);
+
+app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 function isDirectRun(): boolean {
   const entry = process.argv[1];
@@ -158,10 +162,9 @@ async function attachFrontend(): Promise<void> {
       }
     });
   }
-
-  app.use('/api/*', notFound);
-  app.use(errorHandler);
 }
+
+app.use(errorHandler);
 
 async function start(): Promise<void> {
   await ensureDbInitialized();
