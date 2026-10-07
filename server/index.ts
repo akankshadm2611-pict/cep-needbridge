@@ -33,10 +33,29 @@ import { connectMongo } from './db/mongo.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
-fs.mkdirSync(env.DATA_DIR, { recursive: true });
-fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
+try {
+  fs.mkdirSync(env.DATA_DIR, { recursive: true });
+  fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
+} catch {
+  // Read-only environment (e.g. Vercel)
+}
 
 const app = express();
+
+let initPromise: Promise<void> | null = null;
+export async function ensureDbInitialized(): Promise<void> {
+  if (!initPromise) {
+    initPromise = (async () => {
+      await connectMongo();
+      const COLLECTIONS = ['users', 'ngo_profiles', 'volunteer_profiles', 'requirements', 'applications', 'notifications', 'categories'];
+      await Promise.all(COLLECTIONS.map((c) => initCollectionFromMongo(c)));
+      if (isCollectionEmpty('users')) {
+        await seedDatabase();
+      }
+    })();
+  }
+  return initPromise;
+}
 
 app.use(
   helmet({
@@ -66,6 +85,16 @@ if (env.NODE_ENV !== 'test') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Auto-initialize MongoDB / fileStore on serverless requests
+app.use(async (_req, _res, next) => {
+  try {
+    await ensureDbInitialized();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use('/api', publicRouter);
 app.use('/api/auth', authRouter);
@@ -135,18 +164,7 @@ async function attachFrontend(): Promise<void> {
 }
 
 async function start(): Promise<void> {
-  // Connect to MongoDB Atlas if MONGODB_URI is provided
-  await connectMongo();
-
-  // Load all collections from MongoDB Atlas into memory (or seed Mongo from local JSON)
-  const COLLECTIONS = ['users', 'ngo_profiles', 'volunteer_profiles', 'requirements', 'applications', 'notifications', 'categories'];
-  await Promise.all(COLLECTIONS.map(c => initCollectionFromMongo(c)));
-
-  if (isCollectionEmpty('users')) {
-    console.log('🌱 Empty data store — seeding demo accounts and requirements...');
-    await seedDatabase();
-  }
-
+  await ensureDbInitialized();
   startDeadlineJob();
   await attachFrontend();
 
@@ -164,4 +182,5 @@ if (isDirectRun()) {
   });
 }
 
+export default app;
 export { app };
