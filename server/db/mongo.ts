@@ -23,9 +23,14 @@ export async function connectMongo(): Promise<boolean> {
     return false;
   }
 
+  if (mongoose.connection.readyState === 1) {
+    isMongoConnected = true;
+    return true;
+  }
+
   try {
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 8000,
+      serverSelectionTimeoutMS: 5000,
     });
     isMongoConnected = true;
     console.log('🍃 MongoDB Atlas: Connected successfully to database!');
