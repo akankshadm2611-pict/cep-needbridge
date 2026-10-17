@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
-  MONGODB_URI: z.string().optional(),
+  MONGODB_URI: z.string().min(1).optional(),
   JWT_SECRET: z.string().min(1).default('needbridge-dev-secret-change-in-production-32chars'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   DATA_DIR: z.string().default(process.env.VERCEL === '1' ? '/tmp/needbridge-data' : './data'),
@@ -27,6 +27,16 @@ function loadEnv(): Env {
   if (!result.success) {
     console.error('❌ Invalid environment variables:', result.error.flatten().fieldErrors);
     process.exit(1);
+  }
+  if (result.data.NODE_ENV === 'production' || process.env.VERCEL === '1') {
+    if (!result.data.MONGODB_URI) {
+      console.error('MONGODB_URI is required in production.');
+      process.exit(1);
+    }
+    if (result.data.JWT_SECRET === 'needbridge-dev-secret-change-in-production-32chars') {
+      console.error('JWT_SECRET must be set to a private value in production.');
+      process.exit(1);
+    }
   }
   return result.data;
 }

@@ -1,113 +1,48 @@
 # NeedBridge 🌉
 > A precision platform connecting NGOs, volunteers, and resource donors around tracked community needs with zero surplus wastage.
 
----
+## About
 
-## 🌟 Key Capabilities & USP
+NeedBridge brings NGOs and community contributors together around clearly defined local needs. NGOs can publish opportunities for volunteer time or requested goods, while volunteers and donors can find ways to contribute and follow their applications through a role-specific dashboard.
 
-- **Zero-Mismatch Resource Matching & Surplus Prevention Engine**:
-  - **Phase 1 (Hard Filtering)**: Haversine radial distance geofencing (100km radius) and status checks.
-  - **Phase 2 (Multi-Factor Scoring)**: 100-point compatibility score combining Proximity (40pts), Skill/Resource Jaccard Similarity (30pts), Urgency Multiplier (20pts), and Volunteer Reliability (10pts).
-  - **Phase 3 (Bounded Quantity Allocation)**: Enforces $\text{Allocated Qty} = \min(\text{Donor Qty}, \text{Need Remaining})$ to eliminate surplus resource waste.
-- **100% Offline-Capable & Self-Contained**:
-  - Zero external API keys, cloud databases, hosted search, CDN, or third-party AI APIs.
-  - In-house rule-based SmartText NLP keyword assistant for instant category, urgency, and UN SDG tag suggestions.
-  - Self-hosted Google Fonts (`@fontsource-variable/plus-jakarta-sans`, `@fontsource/outfit`).
-- **UN SDG Impact Matrix**:
-  - Live fulfillment counters mapped against UN Sustainable Development Goals (SDGs 1–17).
-- **Admin Verification Workflow**:
-  - Document verification center for approving NGO registrations with society certificates and tax IDs.
-- **Role-Aware Dashboards & Multi-Step Onboarding**:
-  - Tailored 5-step wizard for Volunteers/Donors and 4-step wizard for NGOs with profile completeness meters.
+## Features
 
----
+- **NGO onboarding and verification:** NGOs create a profile and submit documents for administrator review.
+- **Structured need and opportunity posts:** NGOs describe the need, category, urgency, location, required skills or goods, and deadline.
+- **Volunteer and donor participation:** Contributors can discover opportunities, apply with their time, or pledge goods.
+- **Relevant opportunity matching:** Suggestions consider factors such as location, skills or resource categories, urgency, and volunteer reliability.
+- **Bounded goods pledges:** Pledged quantities are limited to the remaining amount needed, helping avoid surplus.
+- **Role-based dashboards:** NGOs manage posts and applications; volunteers track matches and participation; administrators review NGO verification.
+- **Notifications and progress tracking:** Users can keep track of application updates and community impact.
+- **SmartText suggestions:** Helps NGOs draft needs by suggesting categories, urgency, contribution type, and SDG tags from their descriptions.
+- **Persistent storage:** Production records are stored in MongoDB Atlas.
 
-## 🚀 Quick Start (Zero Config)
+## USP
 
-### Prerequisites
-- Node.js 18+ and npm
+NeedBridge focuses on matching a specific community need with an appropriate contribution—not simply listing organizations or collecting donations. It brings needs, volunteer skills, resource pledges, and location together in one workflow. Quantity-aware pledges are designed to reduce over-allocation and waste, while NGO verification helps contributors make more informed choices.
 
-### 1. Installation
-```bash
-npm install
-```
+## Why it is useful
 
-### 2. Seed Database
-```bash
-npm run seed
-```
+NGOs often need to coordinate people and supplies across multiple channels. Potential volunteers and donors may not know which needs are current or where their contribution is most useful. NeedBridge makes needs more discoverable and structured, helps contributors find suitable opportunities, and gives both sides a shared place to manage participation.
 
-### 3. Start Development Server
-```bash
-npm run dev
-```
-Open **http://localhost:3000** in your browser.
+## How to use the site
 
----
+### As an NGO
 
-## 🧪 Automated Testing
+1. Create an account and complete the NGO profile.
+2. Submit registration or verification documents for administrator review.
+3. Create a need or opportunity, including its location, category, urgency, deadline, and required time or goods.
+4. Review incoming applications or pledges from the NGO dashboard and update their status.
 
-Run the full end-to-end test suite verifying TC-01 through TC-08:
-```bash
-npm test
-```
+### As a volunteer or donor
 
-### Automated Test Cases Covered:
-- `TC-01`: Auth & User Lifecycle (Register, JWT token sign/decode, password hash validation)
-- `TC-02`: Role-Based Access Control (Volunteer RBAC isolation, unverified NGO gates)
-- `TC-03`: NGO Verification Submission (Document upload & registration cert tracking)
-- `TC-04`: Admin Review Workflow (Approval & status update with review notes)
-- `TC-05`: Requirement Lifecycle (`draft` → `open` → `in_progress` → `completed`)
-- `TC-06`: Multi-Factor Compatibility Scoring Engine & Zero-Wastage Bounded Allocation
-- `TC-07`: Volunteer Application & Resource Pledge Workflow (Fulfillment & impact stats)
-- `TC-08`: In-App Notifications & Offline SmartText Suggestion NLP
+1. Create an account and complete your profile with your location, skills, interests, availability, and contribution type.
+2. Browse opportunities or review suggested matches.
+3. Open an opportunity to learn more, then apply with your time or pledge the requested goods.
+4. Use your dashboard and notifications to follow updates to your participation.
 
----
+### As an administrator
 
-## 📋 Default Test Credentials
-
-| Role | Email | Password | Status |
-|---|---|---|---|
-| **Admin** | `admin@needbridge.org` | `Admin@123` | Active Admin |
-| **NGO (Verified)** | `helpinghandsngopune@gmail.com` | `Ngo@1234` | Verified NGO |
-| **NGO (Pending)** | `ashafoundation@gmail.com` | `Ngo@1234` | Pending Review |
-| **NGO (Verified)** | `healthfirstngo@gmail.com` | `Ngo@1234` | Verified NGO |
-| **Volunteer / Donor** | `aarohi.sharma@example.org` | `Vol@1234` | Active Volunteer |
-| **Volunteer / Donor** | `rohan.verma@example.org` | `Vol@1234` | Active Volunteer |
-
-*(Tip: You can also use the Quick Fast-Fill buttons on the `/auth` login screen).*
-
----
-
-## 🏛️ Project Architecture
-
-```
-/
-├── server/
-│   ├── index.ts               # Express server + Vite dev middleware / static prod
-│   ├── config/env.ts          # Zod-validated environment config
-│   ├── db/repositories/       # Swappable repository layer over fileStore
-│   ├── db/fileStore.ts        # JSON database driver with mutex locks
-│   ├── db/seed.ts             # Realistic seed data script
-│   ├── routes/                # Auth, Volunteers, NGOs, Requirements, Admin, Public
-│   ├── middleware/            # JWT auth, Zod validation, Multer upload, Rate limiting
-│   ├── services/matching.ts   # Multi-factor score + Knapsack allocation engine
-│   ├── services/smartText.ts  # Rule-based NLP keyword suggestion engine
-│   └── tests/suite.test.ts    # End-to-end verification test suite (TC-01 to TC-08)
-├── src/
-│   ├── components/            # Navbar, Footer, PledgeModal, UI controls
-│   ├── context/AuthContext.ts # Session persistence & auth state
-│   ├── lib/api.ts             # Type-safe API client
-│   ├── lib/copy.ts            # Centralized vocabulary and copy terms
-│   └── pages/                 # HomePage, Opportunities, Ngos, Auth, Onboarding, Dashboards
-├── shared/types.ts            # Canonical shared TypeScript models
-└── docs/                      # AUDIT.md, API.md, ARCHITECTURE.md
-```
-
----
-
-## 📜 Documentation
-
-- [System Architecture & USP Details](docs/ARCHITECTURE.md)
-- [REST API Specification](docs/API.md)
-- [Initial Frontend Audit](docs/AUDIT.md)
+1. Sign in with an administrator account.
+2. Review NGO verification submissions in the admin dashboard.
+3. Approve or reject submissions so contributors can identify verified organizations.

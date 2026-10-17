@@ -3,41 +3,42 @@
  * Provides native Mongoose models for all collections.
  */
 
-import dns from 'node:dns';
+import { Readable } from 'node:stream';
 import mongoose, { Schema, Model } from 'mongoose';
 import { env } from '../config/env.js';
-
-// Resolve SRV records via public DNS if local/ISP DNS fails to resolve _mongodb._tcp
-try {
-  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
-} catch {
-  // Ignore
-}
 
 let isMongoConnected = false;
 
 export async function connectMongo(): Promise<boolean> {
-  const uri = env.MONGODB_URI || process.env.MONGODB_URI;
+  const uri = env.MONGODB_URI;
   if (!uri) {
-    console.log('ℹ️  MongoDB Atlas: No MONGODB_URI provided in .env — using local persistent JSON fileStore.');
+    if (env.NODE_ENV === 'production' || process.env.VERCEL === '1') {
+      throw new Error('MONGODB_URI must be configured for production deployments.');
+    }
+    console.log('MongoDB Atlas is not configured; using the local JSON store.');
     return false;
   }
 
-  if (mongoose.connection.readyState === 1) {
+  if (mongoose.connection.readyState === 1 && isMongoConnected) {
     isMongoConnected = true;
     return true;
   }
 
   try {
     await mongoose.connect(uri, {
+      dbName: 'needbridge',
       serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10,
     });
     isMongoConnected = true;
-    console.log('🍃 MongoDB Atlas: Connected successfully to database!');
+    console.log('Connected to MongoDB Atlas.');
     return true;
-  } catch (err: any) {
-    console.error('❌ MongoDB Atlas Connection Error:', err.message);
-    console.log('⚠️  Falling back to local persistent JSON fileStore.');
+  } catch (err) {
+    isMongoConnected = false;
+    if (env.NODE_ENV === 'production' || process.env.VERCEL === '1') {
+      throw new Error('Could not connect to MongoDB Atlas. Check MONGODB_URI and Atlas network access.', { cause: err });
+    }
+    console.error('Could not connect to MongoDB Atlas; using the local JSON store.');
     return false;
   }
 }
@@ -92,6 +93,35 @@ export async function mongoUpsert(collectionName: string, items: any[]): Promise
   await Model.bulkWrite(ops);
 }
 
+export async function mongoSyncChanges(collectionName: string, before: any[], after: any[]): Promise<void> {
+  if (!isMongoActive()) {
+    throw new Error('MongoDB must be connected before writing persistent data.');
+  }
+
+  const previousById = new Map(before.map((item) => [item.id, item]));
+  const nextById = new Map(after.map((item) => [item.id, item]));
+  if (nextById.has(undefined) || nextById.has(null)) {
+    throw new Error(`Every document in [${collectionName}] must have an id.`);
+  }
+  if (nextById.size !== after.length) {
+    throw new Error(`Documents in [${collectionName}] must have unique ids.`);
+  }
+
+  const changed = after.filter((item) => {
+    const previous = previousById.get(item.id);
+    return !previous || JSON.stringify(previous) !== JSON.stringify(item);
+  });
+  await mongoUpsert(collectionName, changed);
+
+  const deletedIds = before
+    .filter((item) => !nextById.has(item.id))
+    .map((item) => item.id);
+  if (deletedIds.length > 0) {
+    const Model = makeModel<any>(collectionName);
+    await Model.deleteMany({ id: { $in: deletedIds } });
+  }
+}
+
 export async function mongoDeleteById(collectionName: string, id: string): Promise<void> {
   if (!isMongoActive()) return;
   const Model = makeModel<any>(collectionName);
@@ -109,14 +139,43 @@ export async function mongoReplaceAll(collectionName: string, items: any[]): Pro
   }
 }
 
+export async function mongoSaveUpload(filename: string, data: Buffer, contentType: string): Promise<void> {
+  if (!isMongoActive() || !mongoose.connection.db) {
+    throw new Error('MongoDB must be connected before storing uploaded files.');
+  }
+  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'uploads' });
+  const stream = bucket.openUploadStream(filename, { metadata: { contentType } });
+  await new Promise<void>((resolve, reject) => {
+    stream.once('error', reject);
+    stream.once('finish', resolve);
+    stream.end(data);
+  });
+}
+
+export async function mongoReadUpload(filename: string): Promise<{ stream: Readable; contentType?: string } | null> {
+  if (!isMongoActive() || !mongoose.connection.db) {
+    throw new Error('MongoDB must be connected before reading uploaded files.');
+  }
+  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'uploads' });
+  const [file] = await bucket.find({ filename }).sort({ uploadDate: -1 }).limit(1).toArray();
+  if (!file) return null;
+  return {
+    stream: bucket.openDownloadStream(file._id),
+    contentType: file.metadata?.contentType,
+  };
+}
+
+export async function mongoDeleteUpload(filename: string): Promise<void> {
+  if (!isMongoActive() || !mongoose.connection.db) return;
+  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'uploads' });
+  const files = await bucket.find({ filename }).toArray();
+  await Promise.all(files.map((file) => bucket.delete(file._id)));
+}
+
 // Legacy compat — kept so old imports don't break
 export async function syncCollectionToMongo(collectionName: string, items: any[]): Promise<void> {
   if (!isMongoActive()) return;
-  try {
-    await mongoReplaceAll(collectionName, items);
-  } catch (err: any) {
-    console.warn(`⚠️  Failed to sync [${collectionName}] to MongoDB:`, err.message);
-  }
+  await mongoReplaceAll(collectionName, items);
 }
 
 // Alias kept for backward compat

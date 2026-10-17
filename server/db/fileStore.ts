@@ -3,14 +3,14 @@
  *
  * Hybrid storage driver:
  * - If MongoDB Atlas is connected → MongoDB is PRIMARY (read + write).
- * - JSON files serve as local fallback when Mongo is unavailable.
- * - On startup, if Mongo is active, data is loaded from Mongo into memory.
- * - All writes go to both MongoDB AND the local JSON file (for resilience).
+ * - JSON files are a local development fallback and best-effort local snapshot.
+ * - When MongoDB is active, data is loaded from Mongo into memory.
+ * - MongoDB writes complete before a repository operation succeeds.
  */
 import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env.js';
-import { isMongoActive, mongoFindAll, mongoReplaceAll } from './mongo.js';
+import { isMongoActive, mongoFindAll, mongoReplaceAll, mongoSyncChanges } from './mongo.js';
 
 export type JsonValue = any;
 
@@ -20,9 +20,14 @@ interface Collection<T> {
   writeLock: boolean;
   writeQueue: Array<() => void>;
   loadedFromMongo: boolean;
+  persistedData: JsonValue[];
 }
 
 const store = new Map<string, Collection<any>>();
+
+function copyData<T>(items: T[]): T[] {
+  return JSON.parse(JSON.stringify(items)) as T[];
+}
 
 function collectionFile(name: string): string {
   return path.resolve(env.DATA_DIR, `${name}.json`);
@@ -94,6 +99,7 @@ export function getCollection<T extends JsonValue>(name: string): T[] {
       writeLock: false,
       writeQueue: [],
       loadedFromMongo: false,
+      persistedData: copyData(data as JsonValue[]),
     });
   }
   return (store.get(name)!.data as unknown) as T[];
@@ -108,35 +114,55 @@ export async function initCollectionFromMongo(name: string): Promise<void> {
   const col = store.get(name);
   if (col?.loadedFromMongo) return;
 
-  try {
-    const mongoData = await mongoFindAll(name);
-    if (mongoData.length > 0) {
-      console.log(`📦 Loaded ${mongoData.length} records from MongoDB Atlas [${name}]`);
+  const mongoData = await mongoFindAll(name);
+  if (mongoData.length > 0) {
+    console.log(`Loaded ${mongoData.length} records from MongoDB Atlas [${name}]`);
+    const c = store.get(name) ?? {
+      data: [],
+      dirty: false,
+      writeLock: false,
+      writeQueue: [],
+      loadedFromMongo: false,
+      persistedData: [],
+    };
+    c.data = mongoData;
+    c.persistedData = copyData(mongoData);
+    c.loadedFromMongo = true;
+    store.set(name, c);
+    await persistToDisk(name);
+  } else {
+    const localData = env.NODE_ENV === 'production' || process.env.VERCEL === '1'
+      ? []
+      : loadFromDisk(name);
+    if (localData.length > 0) {
+      console.log(`Seeding MongoDB Atlas [${name}] with ${localData.length} local records`);
+      await mongoReplaceAll(name, localData);
+      const c = store.get(name) ?? {
+        data: localData,
+        dirty: false,
+        writeLock: false,
+        writeQueue: [],
+        loadedFromMongo: false,
+        persistedData: [],
+      };
+      c.data = localData;
+      c.persistedData = copyData(localData);
+      c.loadedFromMongo = true;
+      store.set(name, c);
+    } else {
       const c = store.get(name) ?? {
         data: [],
         dirty: false,
         writeLock: false,
         writeQueue: [],
         loadedFromMongo: false,
+        persistedData: [],
       };
-      c.data = mongoData;
+      c.data = [];
+      c.persistedData = [];
       c.loadedFromMongo = true;
       store.set(name, c);
-      // Also sync to local JSON file
-      await persistToDisk(name);
-    } else {
-      // If Mongo is empty but we have local data, push local → Mongo
-      const localData = loadFromDisk(name);
-      if (localData.length > 0) {
-        console.log(`☁️  Seeding MongoDB Atlas [${name}] with ${localData.length} local records`);
-        await mongoReplaceAll(name, localData);
-        if (store.has(name)) {
-          store.get(name)!.loadedFromMongo = true;
-        }
-      }
     }
-  } catch (err: any) {
-    console.warn(`⚠️  Could not load [${name}] from MongoDB:`, err.message);
   }
 }
 
@@ -149,23 +175,31 @@ export async function setCollection<T extends JsonValue>(name: string, items: T[
       writeLock: false,
       writeQueue: [],
       loadedFromMongo: false,
+      persistedData: [],
     };
     store.set(name, c);
     return c;
   })();
 
-  col.data = items as JsonValue[];
+  const before = copyData(col.persistedData);
+  const next = items as JsonValue[];
+  col.data = next;
   col.dirty = true;
 
-  // Always persist to local JSON (fast, synchronous backup)
-  await persistToDisk(name);
-
-  // Write to MongoDB Atlas as primary if connected
   if (isMongoActive()) {
-    mongoReplaceAll(name, items).catch((err: any) => {
-      console.warn(`⚠️  MongoDB write failed for [${name}]:`, err.message);
-    });
+    try {
+      await mongoSyncChanges(name, before, next);
+      col.persistedData = copyData(next);
+    } catch (err) {
+      col.data = before;
+      col.dirty = false;
+      throw err;
+    }
+  } else {
+    col.persistedData = copyData(next);
   }
+
+  await persistToDisk(name);
 }
 
 /** Ensure all dirty collections are flushed (call on graceful shutdown) */

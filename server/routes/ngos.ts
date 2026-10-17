@@ -14,6 +14,8 @@ import {
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { upload } from '../middleware/upload.js';
+import { mongoDeleteUpload, mongoSaveUpload } from '../db/mongo.js';
+import { nanoid } from 'nanoid';
 import type { SDGNumber } from '../../shared/types.js';
 
 const router = Router();
@@ -192,21 +194,43 @@ router.post(
         return;
       }
 
-      const newDocs = files.map(f => ({
-        id: path.basename(f.filename, path.extname(f.filename)),
-        filename: f.filename,
-        originalName: f.originalname,
-        uploadedAt: new Date().toISOString(),
-        mimeType: f.mimetype,
-      }));
+      const gridFsFilenames: string[] = [];
+      try {
+        const newDocs = [];
+        for (const file of files) {
+          const filename = process.env.VERCEL === '1'
+            ? `${nanoid()}-${Date.now()}${path.extname(file.originalname).toLowerCase()}`
+            : file.filename;
+          if (process.env.VERCEL === '1') {
+            if (!file.buffer) throw new Error('Uploaded file data is missing.');
+            await mongoSaveUpload(filename, file.buffer, file.mimetype);
+            gridFsFilenames.push(filename);
+          }
+          newDocs.push({
+            id: path.basename(filename, path.extname(filename)),
+            filename,
+            originalName: file.originalname,
+            uploadedAt: new Date().toISOString(),
+            mimeType: file.mimetype,
+          });
+        }
 
-      const updatedDocs = [...profile.verificationDocuments, ...newDocs];
-      const updated = await NgoProfilesRepo.update(profile.id, {
-        verificationDocuments: updatedDocs,
-        verificationStatus: 'pending', // re-submit for review
-      });
-
-      res.json({ ok: true, data: { documents: updatedDocs, profile: updated } });
+        const updatedDocs = [...profile.verificationDocuments, ...newDocs];
+        const updated = await NgoProfilesRepo.update(profile.id, {
+          verificationDocuments: updatedDocs,
+          verificationStatus: 'pending',
+        });
+        res.json({ ok: true, data: { documents: updatedDocs, profile: updated } });
+      } catch (err) {
+        for (const filename of gridFsFilenames) {
+          try {
+            await mongoDeleteUpload(filename);
+          } catch (cleanupError) {
+            console.error(`Failed to remove incomplete verification upload [${filename}].`, cleanupError);
+          }
+        }
+        throw err;
+      }
     } catch (err) {
       next(err);
     }

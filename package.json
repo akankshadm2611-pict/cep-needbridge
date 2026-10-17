@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "node dist-server/index.js",
     "seed": "tsx server/db/seed.ts",
+    "admin:create": "tsx server/db/createAdmin.ts",
     "test": "tsx server/tests/suite.test.ts",
     "db:reset": "node -e \"require('fs').rmSync('./data', { recursive: true, force: true })\" && npm run seed",
     "lint": "tsc --noEmit",

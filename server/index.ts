@@ -26,7 +26,7 @@ import adminRouter from './routes/admin.js';
 import publicRouter from './routes/public.js';
 import uploadsRouter from './routes/uploads.js';
 import { isCollectionEmpty, initCollectionFromMongo } from './db/fileStore.js';
-import { seedDatabase } from './db/seed.js';
+import { seedCategories, seedDatabase } from './db/seed.js';
 import { startDeadlineJob } from './jobs/deadlines.js';
 import { connectMongo } from './db/mongo.js';
 
@@ -47,19 +47,22 @@ let initPromise: Promise<void> | null = null;
 export async function ensureDbInitialized(): Promise<void> {
   if (!initPromise) {
     initPromise = (async () => {
-      try {
-        await connectMongo();
-        const COLLECTIONS = ['users', 'ngo_profiles', 'volunteer_profiles', 'requirements', 'applications', 'notifications', 'categories'];
-        await Promise.all(COLLECTIONS.map((c) => initCollectionFromMongo(c)));
-        if (isCollectionEmpty('users')) {
-          await seedDatabase();
-        }
-      } catch (err: any) {
-        console.warn('⚠️  Database initialization fallback warning:', err?.message || err);
+      await connectMongo();
+      const COLLECTIONS = ['users', 'ngo_profiles', 'volunteer_profiles', 'requirements', 'applications', 'notifications', 'categories'];
+      await Promise.all(COLLECTIONS.map((c) => initCollectionFromMongo(c)));
+      if (env.NODE_ENV === 'production' || process.env.VERCEL === '1') {
+        await seedCategories();
+      } else if (isCollectionEmpty('users')) {
+        await seedDatabase();
       }
     })();
   }
-  return initPromise;
+  try {
+    await initPromise;
+  } catch (err) {
+    initPromise = null;
+    throw err;
+  }
 }
 
 app.use(

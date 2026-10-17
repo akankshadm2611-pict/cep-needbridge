@@ -15,21 +15,27 @@ import { isCollectionEmpty } from './fileStore.js';
 
 const ROUNDS = env.BCRYPT_ROUNDS;
 
+const DEFAULT_CATEGORIES = [
+  { name: 'Education', slug: 'education', active: true },
+  { name: 'Food Support', slug: 'food-support', active: true },
+  { name: 'Healthcare', slug: 'healthcare', active: true },
+  { name: 'Environment', slug: 'environment', active: true },
+  { name: 'Disaster Relief', slug: 'disaster-relief', active: true },
+];
+
 async function hashPassword(pw: string): Promise<string> {
   return bcrypt.hash(pw, ROUNDS);
+}
+
+export async function seedCategories(): Promise<void> {
+  await CategoriesRepo.seed(DEFAULT_CATEGORIES);
 }
 
 export async function seedDatabase() {
   console.log('🌱 Seeding minimal clean real-world dataset...');
 
   // 1. Categories
-  await CategoriesRepo.seed([
-    { name: 'Education', slug: 'education', active: true },
-    { name: 'Food Support', slug: 'food-support', active: true },
-    { name: 'Healthcare', slug: 'healthcare', active: true },
-    { name: 'Environment', slug: 'environment', active: true },
-    { name: 'Disaster Relief', slug: 'disaster-relief', active: true },
-  ]);
+  await CategoriesRepo.seed(DEFAULT_CATEGORIES);
 
   if (!isCollectionEmpty('users')) {
     console.log('📦 Data already exists.');

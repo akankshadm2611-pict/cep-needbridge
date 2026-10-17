@@ -1,15 +1,12 @@
 /**
  * server/routes/auth.ts — Auth routes: register, login, logout, me, change-password.
  *
- * Admin login is restricted to emails listed in admin-credentials.json at the project root.
+ * Admin login uses the password hash stored in MongoDB.
  * Admin registration via the public form is completely blocked.
  */
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { UsersRepo, NgoProfilesRepo, VolunteerProfilesRepo } from '../db/repositories/index.js';
 import { signToken, requireAuth, AuthRequest } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -25,41 +22,6 @@ const COOKIE_OPTS = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
-// ─── Load admin credentials whitelist ────────────────────────────────────────
-// admin-credentials.json lives at the project root (one level up from server/)
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ADMIN_CREDS_PATH = path.resolve(__dirname, '../../admin-credentials.json');
-
-interface AdminCredential {
-  email: string;
-  password: string;
-  name: string;
-}
-
-function loadAdminCredentials(): AdminCredential[] {
-  try {
-    const candidates = [
-      path.resolve(process.cwd(), 'admin-credentials.json'),
-      path.resolve(__dirname, '../../admin-credentials.json'),
-      path.resolve(__dirname, '../admin-credentials.json')
-    ];
-    for (const p of candidates) {
-      if (fs.existsSync(p)) {
-        const raw = fs.readFileSync(p, 'utf-8');
-        return JSON.parse(raw) as AdminCredential[];
-      }
-    }
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-function findAdminCredential(email: string): AdminCredential | undefined {
-  const creds = loadAdminCredentials();
-  return creds.find(c => c.email.toLowerCase() === email.toLowerCase());
-}
-
 // ─── Profile loader ───────────────────────────────────────────────────────────
 
 function loadProfile(user: { id: string; role: UserRole }) {
@@ -69,7 +31,7 @@ function loadProfile(user: { id: string; role: UserRole }) {
 }
 
 // ─── Register ─────────────────────────────────────────────────────────────────
-// Admin registration is BLOCKED — admins can only login via admin-credentials.json
+// Admin registration is blocked; provision admins with the local admin:create command.
 
 const RegisterSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -146,7 +108,6 @@ router.post('/register', validate(RegisterSchema), async (req, res, next) => {
 });
 
 // ─── Admin Login (separate endpoint) ─────────────────────────────────────────
-// Only emails in admin-credentials.json can log in as Super Admin.
 
 const AdminLoginSchema = z.object({
   email: z.string().email(),
@@ -157,34 +118,9 @@ router.post('/admin-login', validate(AdminLoginSchema), async (req, res, next) =
   try {
     const { email, password } = req.body as z.infer<typeof AdminLoginSchema>;
 
-    // Check whitelist
-    const adminCred = findAdminCredential(email);
-    if (!adminCred) {
-      // Use generic message to avoid leaking which emails are admins
+    const user = UsersRepo.findByEmail(email);
+    if (!user || user.role !== 'admin' || !(await bcrypt.compare(password, user.passwordHash))) {
       res.status(401).json({ ok: false, error: 'Invalid admin credentials. Access denied.' });
-      return;
-    }
-
-    // Check password (plain-text comparison against admin-credentials.json)
-    if (adminCred.password !== password) {
-      res.status(401).json({ ok: false, error: 'Invalid admin credentials. Access denied.' });
-      return;
-    }
-
-    // Ensure an admin user record exists in the DB (auto-create if needed)
-    let user = UsersRepo.findByEmail(email);
-    if (!user) {
-      const passwordHash = await bcrypt.hash(password, env.BCRYPT_ROUNDS);
-      user = await UsersRepo.create({
-        email,
-        passwordHash,
-        role: 'admin',
-        status: 'active',
-        onboardingComplete: true,
-      });
-    } else if (user.role !== 'admin') {
-      // Prevent a non-admin account from gaining admin access
-      res.status(403).json({ ok: false, error: 'This email is not authorized as an admin account.' });
       return;
     }
 

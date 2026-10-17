@@ -7,18 +7,19 @@ import fs from "fs";
 import { requireAuth, AuthRequest } from "../middleware/auth.js";
 import { env } from "../config/env.js";
 import { NgoProfilesRepo } from "../db/repositories/index.js";
+import { mongoReadUpload } from "../db/mongo.js";
 
 const router = Router();
 
 // Serve verification documents (only to the owning NGO or admin)
-router.get("/:filename", requireAuth, (req: AuthRequest, res, next) => {
+router.get("/:filename", requireAuth, async (req: AuthRequest, res, next) => {
   try {
     const { filename } = req.params;
     // Sanitize: prevent path traversal
     const safe = path.basename(filename);
     const filePath = path.resolve(env.UPLOAD_DIR, safe);
 
-    if (!fs.existsSync(filePath)) {
+    if (process.env.VERCEL !== "1" && !fs.existsSync(filePath)) {
       res.status(404).json({ ok: false, error: "File not found." });
       return;
     }
@@ -35,6 +36,22 @@ router.get("/:filename", requireAuth, (req: AuthRequest, res, next) => {
       }
     } else if (req.userRole !== "admin") {
       res.status(403).json({ ok: false, error: "Access denied." });
+      return;
+    }
+
+    if (process.env.VERCEL === "1") {
+      const storedFile = await mongoReadUpload(safe);
+      if (!storedFile) {
+        res.status(404).json({ ok: false, error: "File not found." });
+        return;
+      }
+      res.setHeader("Content-Type", storedFile.contentType || "application/octet-stream");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      storedFile.stream.once("error", (err) => {
+        if (res.headersSent) res.destroy(err);
+        else next(err);
+      });
+      storedFile.stream.pipe(res);
       return;
     }
 
