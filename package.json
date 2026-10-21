@@ -4,8 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "kill-port": "powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Write-Host 'Port 3000 cleared'\"",
-    "dev": "npm run kill-port && tsx server/index.ts",
+    "kill-port": "node -e \"try { const { execSync } = require('child_process'); const platform = process.platform; if (platform === 'win32') { execSync('for /f \\\"usebackq tokens=5\\\" %i in (`netstat -ano -p tcp ^| findstr :3000`) do taskkill /PID %i /F 2>nul', { stdio: 'inherit', shell: true }); } else { execSync('lsof -ti :3000 | xargs -r kill -9', { stdio: 'inherit', shell: true }); } } catch (err) {} console.log('Port 3000 cleared');\"",
+    "dev": "tsx server/index.ts",
+    "start": "tsx server/index.ts",
     "build": "vite build",
     "preview": "node dist-server/index.js",
     "seed": "tsx server/db/seed.ts",

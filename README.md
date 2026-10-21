@@ -27,6 +27,14 @@ NGOs often need to coordinate people and supplies across multiple channels. Pote
 
 ## How to use the site
 
+### Vercel deployment notes
+
+This project is designed to run in Vercel without crashing when environment variables are missing during a fresh deployment.
+
+1. Add `MONGODB_URI` in the Vercel project settings for production if you want Atlas-backed data.
+2. Add a secure `JWT_SECRET` value in Vercel for production authentication.
+3. If those values are not yet configured, the app will continue in local JSON fallback mode instead of exiting during deployment.
+
 ### As an NGO
 
 1. Create an account and complete the NGO profile.

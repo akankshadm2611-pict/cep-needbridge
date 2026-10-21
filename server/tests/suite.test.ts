@@ -4,6 +4,7 @@
  */
 import { app } from '../index.js';
 import { env } from '../config/env.js';
+import { normalizeMongoTimestamps } from '../db/mongo.js';
 import {
   UsersRepo,
   NgoProfilesRepo,
@@ -35,6 +36,17 @@ async function runTests() {
   console.log('🧪 Starting NeedBridge Verification Test Suite (TC-01 to TC-08)...\n');
 
   try {
+    const mongoTimestamps = normalizeMongoTimestamps({
+      createdAt: new Date('2026-10-19T12:00:00.000Z'),
+      updatedAt: new Date('2026-10-19T12:30:00.000Z'),
+      id: 'timestamp-test',
+    });
+    assert(
+      mongoTimestamps.createdAt === '2026-10-19T12:00:00.000Z' &&
+        mongoTimestamps.updatedAt === '2026-10-19T12:30:00.000Z',
+      'MongoDB timestamps are returned as ISO strings for API sorting'
+    );
+
     // -------------------------------------------------------------------------
     // TC-01: Auth & User Lifecycle
     // -------------------------------------------------------------------------

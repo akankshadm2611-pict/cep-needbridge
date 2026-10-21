@@ -2,7 +2,7 @@
  * src/pages/dashboards/NgoDashboard.tsx — NGO Dashboard with Verification Banner and SmartText Assistant.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import {
@@ -33,6 +33,7 @@ import {
   ChevronUp,
   Camera,
   Image as ImageIcon,
+  RefreshCw,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Requirement, Application, NgoProfile, ContributionType, UrgencyLevel, SDGNumber } from '../../../shared/types';
@@ -66,7 +67,10 @@ export function NgoDashboard() {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [applications, setApplications] = useState<EnrichedApplication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedApps, setExpandedApps] = useState<Set<string>>(new Set());
+  const isLoadingData = useRef(false);
 
   // Fulfill / Proof of Utilization Modal State
   const [fulfillingApp, setFulfillingApp] = useState<EnrichedApplication | null>(null);
@@ -95,8 +99,10 @@ export function NgoDashboard() {
   const isPending = ngoProfile?.verificationStatus === 'pending';
   const isRejected = ngoProfile?.verificationStatus === 'rejected';
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = useCallback(async () => {
+    if (isLoadingData.current) return;
+    isLoadingData.current = true;
+    setRefreshing(true);
     try {
       const [r, a] = await Promise.all([
         api.ngos.getMyRequirements(),
@@ -104,16 +110,31 @@ export function NgoDashboard() {
       ]);
       setRequirements(r);
       setApplications(a);
-    } catch {
-      // fallback
+      setLoadError(null);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Failed to load NGO dashboard data.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
+      isLoadingData.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    void loadData();
+    const refreshInterval = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadData();
+    }, 15000);
+    const handleFocus = () => {
+      if (document.visibilityState === 'visible') void loadData();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.clearInterval(refreshInterval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [loadData]);
 
   // Offline SmartText Suggestion Assistant
   const handleSmartSuggest = async () => {
@@ -500,6 +521,18 @@ export function NgoDashboard() {
       {/* Tab 2: Application Queue */}
       {activeTab === 'applications' && (
         <div className="space-y-4">
+          {loadError && (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+              <span>{loadError}</span>
+              <button
+                type="button"
+                onClick={() => void loadData()}
+                className="shrink-0 font-semibold underline underline-offset-2"
+              >
+                Try again
+              </button>
+            </div>
+          )}
           {/* Segment Selector & Counts */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
             <div className="flex items-center gap-2">
@@ -508,6 +541,15 @@ export function NgoDashboard() {
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void loadData()}
+                disabled={refreshing}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
               <button
                 onClick={() => setAppFilter('all')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
@@ -546,7 +588,11 @@ export function NgoDashboard() {
             </div>
           </div>
 
-          {applications.length === 0 ? (
+          {loading ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800/60">
+              Loading applications...
+            </div>
+          ) : applications.length === 0 ? (
             <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
               <Users className="w-10 h-10 text-slate-400 mx-auto" />
               <h3 className="text-base font-bold text-slate-900 dark:text-white">No incoming volunteer requests</h3>

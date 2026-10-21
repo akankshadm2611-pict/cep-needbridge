@@ -74,10 +74,25 @@ export const MongoModels = {
 
 // ─── CRUD helpers that work directly with MongoDB ──────────────────────────
 
+export function normalizeMongoTimestamps<T extends { createdAt?: Date | string; updatedAt?: Date | string }>(
+  document: T
+): Omit<T, 'createdAt' | 'updatedAt'> & { createdAt?: string; updatedAt?: string } {
+  const { createdAt, updatedAt, ...rest } = document;
+  return {
+    ...rest,
+    ...(createdAt !== undefined
+      ? { createdAt: createdAt instanceof Date ? createdAt.toISOString() : createdAt }
+      : {}),
+    ...(updatedAt !== undefined
+      ? { updatedAt: updatedAt instanceof Date ? updatedAt.toISOString() : updatedAt }
+      : {}),
+  };
+}
+
 export async function mongoFindAll(collectionName: string): Promise<any[]> {
   const Model = makeModel<any>(collectionName);
   const docs = await Model.find({}).lean();
-  return docs.map(({ _id, __v, ...rest }: any) => rest);
+  return docs.map(({ _id, __v, ...rest }: any) => normalizeMongoTimestamps(rest));
 }
 
 export async function mongoUpsert(collectionName: string, items: any[]): Promise<void> {
